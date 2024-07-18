@@ -5,6 +5,7 @@ let mouseX = 0, mouseY = 0;
 
 let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
+console.log(windowHalfX, windowHalfY);
 
 init();
 animate();
@@ -45,6 +46,24 @@ function init() {
     scene.add(light);
     scene.add(new THREE.AmbientLight(0xffffff, .3));
 
+    scene.add(egg());
+
+    //
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    document.body.style.touchAction = 'none';
+    document.body.addEventListener( 'pointermove', onPointerMove );
+
+    //
+
+    window.addEventListener( 'resize', onWindowResize );
+}
+
+function egg() {
     const points = [];
 
     for ( let deg = 0; deg <= 180; deg += 1 ) {
@@ -61,10 +80,10 @@ function init() {
         transmission: 1
     });
 
-    const egg = new THREE.Mesh( eggGeometry, eggMaterial );
-    egg.position.set(0, 0, 500);
-    egg.scale.set(150,150,150)
-    scene.add( egg );
+    const white = new THREE.Mesh( eggGeometry, eggMaterial );
+    white.name = "white";
+    white.position.set(0, 0, 500);
+    white.scale.set(150,150,150);
 
     const yolkGeometry = new THREE.SphereGeometry(75);
     const yolkMaterial = new THREE.MeshPhysicalMaterial({
@@ -74,22 +93,13 @@ function init() {
     });
 
     const yolk = new THREE.Mesh( yolkGeometry, yolkMaterial );
+    yolk.name = "yolk";
     yolk.position.set(0,-40,500);
-    scene.add( yolk );
 
-    //
+    const egg = new THREE.Group();
+    egg.add(white, yolk);
 
-    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
-
-    document.body.style.touchAction = 'none';
-    document.body.addEventListener( 'pointermove', onPointerMove );
-
-    //
-
-    window.addEventListener( 'resize', onWindowResize );
+    return egg;
 }
 
 function onWindowResize() {
@@ -139,7 +149,22 @@ function render() {
         if ( object instanceof THREE.Points ) {
 
             object.rotation.x = -time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+            // object.translateY(4);
+            // if (object.position.y > window.innerHeight) {
+            //     object.position.y = 0;
+            // }
+            
 
+        }
+
+        if ( object instanceof THREE.Group ) {
+            const white = object.getObjectByName("white");
+            const yolk = object.getObjectByName("yolk");
+            white.material.transmission -= 0.001;
+
+            if (white.material.transmission <= 0) {
+                white.material.transmission = 1;
+            }
         }
 
     }
