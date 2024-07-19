@@ -5,7 +5,7 @@ let mouseX = 0, mouseY = 0;
 
 let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
-console.log(windowHalfX, windowHalfY);
+// console.log(windowHalfX, windowHalfY);
 
 init();
 animate();
@@ -39,6 +39,7 @@ function init() {
     bubMaterial.opacity = 0.7;
 
     const particles = new THREE.Points( bubGeometry, bubMaterial );
+    particles.position.set(0, -3000, 500);
     scene.add( particles );
 
     var light = new THREE.DirectionalLight(0xffffff, 2);
@@ -95,6 +96,10 @@ function egg() {
     const yolk = new THREE.Mesh( yolkGeometry, yolkMaterial );
     yolk.name = "yolk";
     yolk.position.set(0,-40,500);
+    const col = yolk.material.color
+    const col2 = new THREE.Color(0xffcc5f);
+    console.log(col.r, col.g, col.b);
+    console.log(col2.r, col2.g, col2.b);
 
     const egg = new THREE.Group();
     egg.add(white, yolk);
@@ -148,8 +153,8 @@ function render() {
 
         if ( object instanceof THREE.Points ) {
 
-            object.rotation.x = -time * ( i < 4 ? i + 1 : - ( i + 1 ) );
-            // object.translateY(4);
+            // object.rotation.x = -time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+            object.translateY(4);
             // if (object.position.y > window.innerHeight) {
             //     object.position.y = 0;
             // }
@@ -160,10 +165,10 @@ function render() {
         if ( object instanceof THREE.Group ) {
             const white = object.getObjectByName("white");
             const yolk = object.getObjectByName("yolk");
-            white.material.transmission -= 0.001;
 
-            if (white.material.transmission <= 0) {
-                white.material.transmission = 1;
+            if (white.material.transmission > 0) {
+                white.material.transmission -= 0.001;
+                yolk.material.color.add(new THREE.Color(0, 0.00023, 0.000125));
             }
         }
 
